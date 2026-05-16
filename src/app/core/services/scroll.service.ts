@@ -9,6 +9,7 @@ gsap.registerPlugin(ScrollTrigger);
 export class ScrollService {
   private lenis!: Lenis;
 
+
   init(): void {
     this.lenis = new Lenis({
       duration: 1.0,
