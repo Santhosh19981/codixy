@@ -23,6 +23,17 @@ export class ScrollService {
         touchMultiplier: 1.5,
         syncTouch: false,        // keep native momentum on touch devices (smoothest on mobile)
         infinite: false,
+        // Chrome sends some wheel events (touchpad momentum, precision mice) as
+        // non-cancelable, so the browser scrolls natively anyway. If Lenis also
+        // animated, the two would fight and the page would jump back and forth.
+        // For those, drop Lenis's own animation and let the native scroll lead.
+        virtualScroll: ({ event }) => {
+          if (event.cancelable || !event.type.includes('wheel')) return true;
+          if (this.lenis.isScrolling === 'smooth') {
+            this.lenis.scrollTo(this.lenis.actualScroll, { immediate: true, force: true });
+          }
+          return false;
+        },
       });
 
       this.lenis.on('scroll', ScrollTrigger.update);

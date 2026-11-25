@@ -25,15 +25,12 @@ import { CommonModule } from '@angular/common';
 })
 export class TrustTickerComponent {
   brands = [
-    'EKA_DP_1-01-removebg-preview.png',
     'Mobile-1.png',
     'Ourschoolerp-Logo.png',
-    'PCS-logo.png',
-    'Untitled-design-4.png',
-    'aspd-Logo.png',
-    'logo.png',
-    'logo.webp',
-    'ravss-logo.png'
+    'cashflo-logo.png',
+    'inframart-logo.png',
+    'aquapure-logo.webp',
+    'bhagona-logo.png'
   ];
   get allBrands() { return [...this.brands, ...this.brands]; }
 }

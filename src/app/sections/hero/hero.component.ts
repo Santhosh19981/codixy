@@ -102,6 +102,10 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   private mouse = { x: 0, y: 0 };
   private visible = true;
   private observer?: IntersectionObserver;
+  // Animation time only advances while rendering, so resuming doesn't snap the particles.
+  private elapsed = 0;
+  private lastFrame = 0;
+  private lastWidth = 0;
   private onMouseMove = (e: MouseEvent) => {
     this.mouse.x = (e.clientX / window.innerWidth - 0.5) * 2;
     this.mouse.y = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -142,11 +146,15 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
       this.animateHeroEntrance();
       this.trackMouse();
       // Stop rendering when the hero is off-screen so scrolling stays smooth.
+      // The margin restarts it just before it scrolls back in, so no stale frame shows.
       this.observer = new IntersectionObserver(([entry]) => {
         const wasVisible = this.visible;
         this.visible = entry.isIntersecting;
-        if (this.visible && !wasVisible) this.animate();
-      });
+        if (this.visible && !wasVisible) {
+          this.lastFrame = 0;
+          this.animate();
+        }
+      }, { rootMargin: '300px 0px' });
       this.observer.observe(this.canvasRef.nativeElement);
     });
   }
@@ -165,8 +173,10 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
 
     // Renderer
     this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 768 ? 1.5 : 2));
+    // CSS sizes the canvas; only the drawing buffer is set here.
+    this.renderer.setSize(width, height, false);
+    this.lastWidth = width;
 
     // Create particle system
     this.createParticles();
@@ -256,7 +266,11 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
     if (!this.visible) return;
     this.animFrameId = requestAnimationFrame(() => this.animate());
 
-    const time = Date.now() * 0.0005;
+    const now = performance.now();
+    // Clamp the step so a long frame or a resume never jumps the scene.
+    if (this.lastFrame) this.elapsed += Math.min(now - this.lastFrame, 50);
+    this.lastFrame = now;
+    const time = this.elapsed * 0.0005;
 
     // Rotate particles slowly
     this.particles.rotation.x = time * 0.05 + this.mouse.y * 0.1;
@@ -272,9 +286,14 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   private onResize(): void {
     const width = window.innerWidth;
     const height = window.innerHeight;
+    // On touch devices the address bar showing/hiding while scrolling fires
+    // height-only resizes; reallocating the canvas then causes flicker.
+    const touch = window.matchMedia('(hover: none)').matches;
+    if (touch && width === this.lastWidth) return;
+    this.lastWidth = width;
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(width, height);
+    this.renderer.setSize(width, height, false);
   }
 
   private animateHeroEntrance(): void {

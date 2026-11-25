@@ -35,57 +35,9 @@ gsap.registerPlugin(ScrollTrigger);
           </p>
         </div>
 
-        <!-- CEO Featured Card -->
-        <div class="mb-12" #ceoCard>
-          <div class="leader-card spotlight-card glass-card relative overflow-hidden group cursor-default flex flex-col md:flex-row"
-            (mousemove)="onMouseMove($event)"
-            (mouseleave)="onMouseLeave($event)"
-            style="border-color: rgba(255,255,255,0.06); transition: all 0.4s cubic-bezier(0.4,0,0.2,1);">
-            
-            <!-- Left Side: Photo -->
-            <div class="w-full md:w-1/2 relative min-h-[450px] overflow-hidden bg-[#0d1424]">
-              <!-- Top glow bar -->
-              <div class="absolute top-0 left-0 right-0 h-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20"
-                [style.background]="'linear-gradient(90deg,' + ceo.colorA + ',' + ceo.colorB + ')'"></div>
-                
-              <!-- Glow orb -->
-              <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"
-                [style.background]="ceo.colorA"></div>
-                
-              <!-- Photo Image -->
-              <img [src]="ceo.photo" alt="CEO" class="absolute inset-0 w-full h-full object-cover object-[50%_15%] transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=600'">
-              
-              <!-- Gradient Overlay (Lightened for better visibility) -->
-              <div class="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-50"></div>
-            </div>
-            
-            <!-- Right Side: Details -->
-            <div class="w-full md:w-1/2 p-8 md:p-12 relative z-10 flex flex-col justify-center bg-gradient-to-l from-transparent to-[#0d1424]">
-              <div class="mb-2">
-                <span class="text-sm font-bold tracking-widest uppercase font-grotesk" [style.color]="ceo.colorA">{{ceo.designation}}</span>
-              </div>
-              <h3 class="text-4xl font-bold text-white mb-6 font-grotesk group-hover:text-cyan-300 transition-colors duration-300">{{ceo.name}}</h3>
-              <p class="text-slate-300 text-lg leading-relaxed mb-8 font-outfit">{{ceo.bio}}</p>
-
-              <!-- Divider -->
-              <div class="h-px mb-8 transition-all duration-400"
-                [style.background]="'linear-gradient(90deg,' + ceo.colorA + '40, transparent)'"></div>
-
-              <!-- Social Icons -->
-              <div class="flex gap-4">
-                <a *ngFor="let social of ceo.socials" [href]="social.url" target="_blank"
-                  class="w-10 h-10 glass-card flex items-center justify-center transition-all duration-300 hover:scale-110 hover:border-cyan-400/30"
-                  [attr.aria-label]="social.name">
-                  <span [innerHTML]="social.icon | safeHtml" class="text-slate-400 hover:text-cyan-400 transition-colors"></span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Other Leaders Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto" #otherLeadersGrid>
-          <div *ngFor="let leader of otherLeaders; let i = index"
+        <!-- Leaders Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto" #leadersGrid>
+          <div *ngFor="let leader of leaders; let i = index"
             class="leader-card spotlight-card glass-card relative overflow-hidden group cursor-default"
             (mousemove)="onMouseMove($event)"
             (mouseleave)="onMouseLeave($event)"
@@ -145,8 +97,7 @@ gsap.registerPlugin(ScrollTrigger);
 })
 export class LeadershipComponent implements AfterViewInit {
   @ViewChild('leaderHeader') headerRef!: ElementRef;
-  @ViewChild('ceoCard') ceoCardRef!: ElementRef;
-  @ViewChild('otherLeadersGrid') otherLeadersGridRef!: ElementRef;
+  @ViewChild('leadersGrid') leadersGridRef!: ElementRef;
 
   socials = [
     { name: 'LinkedIn', url: 'https://linkedin.com', icon: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>' },
@@ -163,13 +114,6 @@ export class LeadershipComponent implements AfterViewInit {
       socials: [{ name: 'LinkedIn', url: 'https://linkedin.com', icon: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>' }, { name: 'Twitter', url: 'https://twitter.com', icon: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>' }, { name: 'GitHub', url: 'https://github.com', icon: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>' }],
     },
     {
-      name: 'Shireesha Rangu', initials: 'SR', designation: 'Marketing Head',
-      bio: 'Leads brand strategy, digital growth, and market expansion with a creative and data-driven approach. Builds strong client relationships and enhances brand visibility, playing a key role in driving the company\'s global presence through innovative marketing campaigns.',
-      colorA: '#ec4899', colorB: '#7c3aed', bgA: 'rgba(236,72,153,0.08)', bgB: 'rgba(124,58,237,0.12)',
-      photo: 'assets/images/file_00000000098c7207b952cc40021e8646.png',
-      socials: [{ name: 'LinkedIn', url: 'https://linkedin.com', icon: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>' }, { name: 'Instagram', url: 'https://instagram.com', icon: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>' }, { name: 'GitHub', url: 'https://github.com', icon: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>' }],
-    },
-    {
       name: 'Vivek Vardhan Choutha', initials: 'VV', designation: 'Designing Head',
       bio: 'Specializes in crafting futuristic, user-centric digital experiences with a strong focus on creativity, innovation, and modern UI/UX design. Combines visual excellence with intuitive functionality ensuring every product reflects the company\'s premium and forward-thinking identity.',
       colorA: '#ed3a3aff', colorB: '#06b6d4', bgA: 'rgba(124,58,237,0.08)', bgB: 'rgba(6,182,212,0.12)',
@@ -178,23 +122,16 @@ export class LeadershipComponent implements AfterViewInit {
     },
   ];
 
-  get ceo() { return this.leaders[0]; }
-  get otherLeaders() { return this.leaders.slice(1); }
-
   ngAfterViewInit(): void {
     setTimeout(() => {
       gsap.fromTo(this.headerRef.nativeElement, { opacity: 0, y: 50 }, {
         opacity: 1, y: 0, duration: 1, ease: 'power3.out',
         scrollTrigger: { trigger: this.headerRef.nativeElement, start: 'top 85%', once: true }
       });
-      gsap.fromTo(this.ceoCardRef.nativeElement, { opacity: 0, y: 80, scale: 0.95 }, {
-        opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out', delay: 0.2,
-        scrollTrigger: { trigger: this.ceoCardRef.nativeElement, start: 'top 80%', once: true }
-      });
-      const cards = this.otherLeadersGridRef.nativeElement.querySelectorAll('.leader-card');
+      const cards = this.leadersGridRef.nativeElement.querySelectorAll('.leader-card');
       gsap.fromTo(cards, { opacity: 0, y: 80, scale: 0.95 }, {
-        opacity: 1, y: 0, scale: 1, duration: 0.9, stagger: 0.2, ease: 'power3.out', delay: 0.4,
-        scrollTrigger: { trigger: this.otherLeadersGridRef.nativeElement, start: 'top 80%', once: true }
+        opacity: 1, y: 0, scale: 1, duration: 0.9, stagger: 0.2, ease: 'power3.out', delay: 0.2,
+        scrollTrigger: { trigger: this.leadersGridRef.nativeElement, start: 'top 80%', once: true }
       });
     }, 100);
   }

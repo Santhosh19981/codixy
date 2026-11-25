@@ -127,53 +127,36 @@ export class PortfolioComponent implements AfterViewInit {
       image: 'assets/icons/school-management.jpg'
     },
     {
-      title: 'Nawab Saab',
-      url: 'https://www.nawabsaab.ca',
-      category: 'Restaurant App',
-      description: 'Premium restaurant application with online ordering, digital menu exploration, and table reservations.',
-      techStack: ['Next.js', 'Tailwind CSS', 'Vercel'],
-      image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80'
-    },
-
-    {
-      title: 'Recon Pest Control',
-      url: 'https://reconpestcontrol.com.au',
-      category: 'Service Booking',
-      description: 'Professional pest control service platform with automated quote generation and scheduling capabilities.',
-      techStack: ['React', 'GraphQL', 'AWS'],
-      image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80'
+      title: 'CW Rentals',
+      url: '#',
+      category: 'Car Rental Platform',
+      description: 'Car rental platform with vehicle listings, real-time availability, online booking, and fleet management for operators.',
+      techStack: ['Angular', 'Node.js', 'MongoDB'],
+      image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=800&q=80'
     },
     {
-      title: 'ASPD',
-      url: 'https://aspd.co.in',
-      category: 'EdTech Portal',
-      description: 'Educational and skill development portal with comprehensive course management and student tracking.',
-      techStack: ['Angular', 'Spring Boot', 'MySQL'],
-      image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'
+      title: 'CashFlo',
+      url: '#',
+      category: 'Accounting & ERP',
+      description: 'Accounting and ERP platform covering invoicing, expenses, inventory, and financial reports for growing businesses.',
+      techStack: ['Angular', 'Node.js', 'PostgreSQL'],
+      image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=800&q=80'
     },
     {
-      title: 'Eka Studios',
-      url: 'https://ekastudios.in',
-      category: 'Creative Portfolio',
-      description: 'Creative agency portfolio showcasing architectural and interior design projects with high-quality media.',
-      techStack: ['Next.js', 'Framer Motion', 'Sanity CMS'],
-      image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80'
+      title: 'InfraMart',
+      url: '#',
+      category: 'Construction & Interiors',
+      description: 'Construction and interiors platform showcasing projects and services, with enquiry and quotation management.',
+      techStack: ['Angular', 'Node.js', 'MySQL'],
+      image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80'
     },
     {
-      title: 'Nav Yoga',
-      url: 'https://navyoga.in',
-      category: 'Wellness Studio',
-      description: 'Wellness and yoga studio platform with online class scheduling, video library, and membership management.',
-      techStack: ['Vue.js', 'Nuxt', 'Supabase'],
-      image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80'
-    },
-    {
-      title: 'PCS Solutions',
-      url: 'https://pcssolutions.in',
-      category: 'Enterprise IT',
-      description: 'Enterprise IT and hardware solutions provider with product catalog, support ticketing, and client portal.',
-      techStack: ['React', 'Django', 'PostgreSQL'],
-      image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80'
+      title: 'Aqua Pure Solutions',
+      url: '#',
+      category: 'Water Purification',
+      description: 'Water purification business platform with product catalog, service bookings, and customer support management.',
+      techStack: ['Angular', 'Node.js', 'MongoDB'],
+      image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=800&q=80'
     }
   ];
   get allProjects() { return [...this.projects, ...this.projects]; }

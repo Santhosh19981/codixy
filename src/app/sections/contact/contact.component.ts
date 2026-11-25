@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SafeHtmlPipe } from '../../shared/pipes/safe-html.pipe';
@@ -76,7 +76,9 @@ gsap.registerPlugin(ScrollTrigger);
             style="background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.08);">
             <h3 class="text-2xl font-bold text-white mb-8 font-grotesk">Send a Message</h3>
 
-            <form (ngSubmit)="onSubmit()" class="space-y-5">
+            <form #contactFormRef="ngForm" (ngSubmit)="onSubmit(contactFormRef)" class="space-y-5">
+              <!-- Honeypot: hidden from people, bots fill it and get dropped -->
+              <input type="text" name="botcheck" [(ngModel)]="honey" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label class="block text-xs text-slate-400 uppercase tracking-widest font-grotesk mb-2">Your Name</label>
@@ -86,7 +88,7 @@ gsap.registerPlugin(ScrollTrigger);
                 <div>
                   <label class="block text-xs text-slate-400 uppercase tracking-widest font-grotesk mb-2">Email Address</label>
                   <input type="email" [(ngModel)]="formData.email" name="email" placeholder="john@company.com"
-                    class="form-input" required>
+                    class="form-input" required email>
                 </div>
               </div>
 
@@ -115,6 +117,11 @@ gsap.registerPlugin(ScrollTrigger);
                 style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#10b981;">
                 ✓ Message sent! We'll get back to you within 24 hours.
               </div>
+
+              <div *ngIf="errorMessage" class="text-center p-4 rounded-xl font-outfit text-sm"
+                style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;">
+                {{errorMessage}}
+              </div>
             </form>
           </div>
         </div>
@@ -128,9 +135,16 @@ export class ContactComponent implements AfterViewInit {
   @ViewChild('contactInfo') infoRef!: ElementRef;
   @ViewChild('contactForm') formRef!: ElementRef;
 
+  // Web3Forms emails each submission to connect@codixytechnologies.com (no backend needed).
+  // The access key is tied to that inbox and is safe to ship in client code.
+  private readonly contactEndpoint = 'https://api.web3forms.com/submit';
+  private readonly web3formsKey = 'PASTE_WEB3FORMS_ACCESS_KEY_HERE';
+
   formData = { name:'', email:'', subject:'', message:'' };
+  honey = '';
   isSubmitting = false;
   submitted = false;
+  errorMessage = '';
 
   contactDetails = [
     { label:'Email', value:'connect@codixytechnologies.com', icon:'<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>' },
@@ -162,12 +176,38 @@ export class ContactComponent implements AfterViewInit {
     }, 100);
   }
 
-  onSubmit(): void {
+  async onSubmit(form: NgForm): Promise<void> {
+    this.submitted = false;
+    this.errorMessage = '';
+    if (form.invalid) {
+      this.errorMessage = 'Please fill in your name, a valid email address, and a message.';
+      return;
+    }
+    if (this.honey) return;
+
     this.isSubmitting = true;
-    setTimeout(() => {
-      this.isSubmitting = false;
+    const { name, email, subject, message } = this.formData;
+    try {
+      const res = await fetch(this.contactEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: this.web3formsKey,
+          subject: `New website enquiry: ${subject || 'Project Inquiry'} (from ${name})`,
+          from_name: 'CODIXY Website',
+          name, email, message,
+          topic: subject || 'Project Inquiry',
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.success !== true) throw new Error(data.message || res.statusText);
       this.submitted = true;
       this.formData = { name:'', email:'', subject:'', message:'' };
-    }, 1500);
+      form.resetForm(this.formData);
+    } catch {
+      this.errorMessage = 'Sorry, your message could not be sent. Please email us at connect@codixytechnologies.com.';
+    } finally {
+      this.isSubmitting = false;
+    }
   }
 }
