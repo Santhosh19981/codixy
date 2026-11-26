@@ -237,15 +237,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   scrollToTop(): void {
-    this.scrollService.scrollTo(0, { duration: 1.5 });
+    this.scrollService.goHome();
   }
 
   handleNavClick(e: Event, href: string): void {
     e.preventDefault();
-    const target = document.querySelector(href);
-    if (target) {
-      this.scrollService.scrollTo(target as HTMLElement, { offset: -80, duration: 1.5 });
-    }
+    this.scrollService.goToSection(href);
   }
 
   toggleMobileMenu(): void {
