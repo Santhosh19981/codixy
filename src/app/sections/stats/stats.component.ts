@@ -36,8 +36,8 @@ export class StatsComponent implements AfterViewInit {
   @ViewChild('statsGrid') gridRef!: ElementRef;
 
   stats = [
-    { value: 125, suffix: '+', label: 'Projects Delivered', lineColor: '#06b6d4' },
-    { value: 50, suffix: '+', label: 'Happy Clients', lineColor: '#7c3aed' },
+    { value: 15, suffix: '+', label: 'Projects Taken', lineColor: '#06b6d4' },
+    { value: 12, suffix: '', label: 'Projects Delivered', lineColor: '#7c3aed' },
     { value: 5, suffix: '+', label: 'Years of Excellence', lineColor: '#2563eb' },
     { value: 30, suffix: '+', label: 'Technologies Mastered', lineColor: '#10b981' },
   ];

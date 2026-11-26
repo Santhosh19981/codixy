@@ -113,8 +113,8 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   private onResizeBound = () => this.onResize();
 
   stats = [
-    { value: '125+', label: 'Projects Delivered' },
-    { value: '50+', label: 'Happy Clients' },
+    { value: '15+', label: 'Projects Taken' },
+    { value: '12', label: 'Projects Delivered' },
     { value: '5+', label: 'Years of Excellence' },
   ];
 
