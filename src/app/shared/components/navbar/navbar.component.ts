@@ -22,10 +22,9 @@ import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
           <div class="logo-wrap flex items-center gap-3 cursor-pointer" (click)="scrollToTop()">
             <div class="logo-img-wrap relative">
               <img
-                src="assets/logo/codixy-logo.jpg"
+                src="assets/logo/codixy-logo-dark.png"
                 alt="CODIXY Technologies"
-                class="h-10 md:h-14 w-auto object-contain rounded-md"
-                style="filter: drop-shadow(0 0 8px rgba(6,182,212,0.5));"
+                class="logo-img h-10 md:h-14 w-auto object-contain"
               >
             </div>
           </div>
@@ -103,8 +102,7 @@ import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 
       <!-- Mobile Logo -->
       <div class="mb-12">
-        <img src="assets/logo/codixy-logo.jpg" alt="CODIXY" class="h-12 w-auto mx-auto"
-          style="filter: drop-shadow(0 0 10px rgba(6,182,212,0.6));">
+        <img src="assets/logo/codixy-logo-dark.png" alt="CODIXY" class="h-12 w-auto mx-auto">
       </div>
 
       <!-- Mobile Nav Items -->
@@ -179,12 +177,16 @@ import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
     }
     .site-header.scrolled .header-bg { opacity: 1; }
 
-    .logo-img-wrap {
-      transition: filter 0.3s ease;
+    .logo-img {
+      display: block;
+      image-rendering: -webkit-optimize-contrast;
+      transform: translateZ(0);
+      transition: transform 0.3s ease, filter 0.3s ease;
     }
 
-    .logo-img-wrap:hover {
-      filter: drop-shadow(0 0 12px rgba(6,182,212,0.8));
+    .logo-img-wrap:hover .logo-img {
+      transform: translateZ(0) scale(1.04);
+      filter: brightness(1.15) saturate(1.1);
     }
   `]
 })
