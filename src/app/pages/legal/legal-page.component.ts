@@ -15,7 +15,7 @@ export interface LegalSection {
 
 const SITE = 'https://codixytechnologies.com';
 const HOME_DESCRIPTION =
-  'CODIXY Technologies is an innovative IT solutions company specializing in web applications, enterprise software, AI-powered automation, and scalable digital platforms.';
+  'CODIXY Technologies is a software development company in Hyderabad building web and mobile apps, enterprise software and AI automation for growing businesses.';
 
 @Component({
   selector: 'app-legal-page',
@@ -235,7 +235,7 @@ export class LegalPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.observer?.disconnect();
-    this.setSeo(HOME_DESCRIPTION, `${SITE}/`, 'CODIXY Technologies | Engineering the Future');
+    this.setSeo(HOME_DESCRIPTION, `${SITE}/`, 'CODIXY Technologies | Software Development Company Hyderabad');
   }
 
   jump(e: Event, id: string): void {

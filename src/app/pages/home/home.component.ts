@@ -28,15 +28,22 @@ import { ContactComponent } from '../../sections/contact/contact.component';
   template: `
     <main style="overflow: clip;">
       <app-hero></app-hero>
-      <app-trust-ticker></app-trust-ticker>
-      <app-about></app-about>
-      <app-services></app-services>
-      <app-stats></app-stats>
-      <app-technologies></app-technologies>
-      <app-portfolio></app-portfolio>
-      <app-leadership></app-leadership>
-      <app-testimonials></app-testimonials>
-      <app-contact></app-contact>
+
+      <!-- Below-the-fold sections load in a separate chunk once the browser is idle,
+           so the first screen renders faster (especially on mobile). -->
+      @defer (on idle) {
+        <app-trust-ticker></app-trust-ticker>
+        <app-about></app-about>
+        <app-services></app-services>
+        <app-stats></app-stats>
+        <app-technologies></app-technologies>
+        <app-portfolio></app-portfolio>
+        <app-leadership></app-leadership>
+        <app-testimonials></app-testimonials>
+        <app-contact></app-contact>
+      } @placeholder {
+        <div style="min-height: 100vh;"></div>
+      }
     </main>
   `,
   styles: [`

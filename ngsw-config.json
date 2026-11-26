@@ -15,7 +15,7 @@
           "/manifest.webmanifest",
           "/*.css",
           "/*.js",
-          "/assets/logo/**"
+          "/assets/logo/codixy-logo-dark.webp"
         ]
       }
     },

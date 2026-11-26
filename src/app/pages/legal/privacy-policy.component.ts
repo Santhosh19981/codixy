@@ -45,9 +45,10 @@ export class PrivacyPolicyComponent {
         <h3>Information collected automatically</h3>
         <ul>
           <li><strong>Technical data:</strong> when you visit the Website, our hosting and content-delivery providers automatically process standard log data such as your IP address, browser type, device type, pages requested and the date and time of access. This is used to deliver the Website securely and to prevent abuse.</li>
+          <li><strong>Website analytics:</strong> we use <strong>Cloudflare Web Analytics</strong> to understand overall traffic, such as the number of visits, pages viewed, referring websites, country and device type, and to measure page-load performance. It is privacy-first: it does not use cookies, does not track you across websites, and does not build a profile of you.</li>
           <li><strong>Offline cache:</strong> the Website can be installed as an app and uses a service worker to store website files on your device so it loads faster. These files contain no personal information.</li>
         </ul>
-        <p class="legal-note">We do <strong>not</strong> currently use advertising cookies, analytics trackers or tracking pixels on the Website.</p>
+        <p class="legal-note">We do <strong>not</strong> use advertising cookies, cross-site tracking or tracking pixels (such as the Facebook Pixel) on the Website.</p>
       `,
     },
     {
@@ -61,7 +62,7 @@ export class PrivacyPolicyComponent {
           <li>send project updates, invoices and service-related communication;</li>
           <li>evaluate job applications;</li>
           <li>keep the Website secure, prevent spam and fraud, and fix technical issues;</li>
-          <li>improve our services and the content of the Website; and</li>
+          <li>understand how visitors use the Website in aggregate, and improve its content, speed and services; and</li>
           <li>comply with applicable laws, regulations and legal requests.</li>
         </ul>
         <p>We do not use your information for automated decision-making that has legal or similarly significant effects on you.</p>
@@ -81,6 +82,7 @@ export class PrivacyPolicyComponent {
       html: `
         <p>The Website itself does not set marketing or analytics cookies. However, some features load content from trusted third parties, which may collect technical information such as your IP address under their own privacy policies:</p>
         <ul>
+          <li><strong>Cloudflare</strong>, which hosts and protects the Website and provides our cookie-free Web Analytics;</li>
           <li><strong>Google Maps</strong>, which shows our location in the contact section;</li>
           <li><strong>Google Fonts</strong> and <strong>Fontshare</strong>, which provide the typefaces used on the Website;</li>
           <li><strong>Technology logos</strong> served from public content-delivery networks; and</li>

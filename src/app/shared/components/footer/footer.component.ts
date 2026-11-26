@@ -20,7 +20,7 @@ import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10 md:gap-12 lg:gap-16 mb-12 md:mb-16">
           <!-- Brand -->
           <div class="col-span-2 lg:col-span-1">
-            <img src="assets/logo/codixy-logo-dark.png" alt="CODIXY Technologies" class="h-10 w-auto mb-6">
+            <img src="assets/logo/codixy-logo-dark.webp" alt="CODIXY Technologies" width="720" height="179" loading="lazy" decoding="async" class="h-10 w-auto mb-6">
             <p class="text-slate-400 text-sm leading-relaxed font-outfit mb-6">
               Engineering tomorrow's digital solutions today. Empowering businesses through innovation,
               AI, and next-generation technology.

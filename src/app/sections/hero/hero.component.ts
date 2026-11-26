@@ -3,7 +3,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { gsap } from 'gsap';
-import * as THREE from 'three';
+import type * as THREE from 'three';
 import { ScrollService } from '../../core/services/scroll.service';
 
 @Component({
@@ -13,7 +13,7 @@ import { ScrollService } from '../../core/services/scroll.service';
   template: `
     <section id="hero" class="relative min-h-[100svh] flex items-start md:items-center overflow-hidden bg-[#030712]">
       <!-- Three.js Particle Canvas -->
-      <canvas #heroCanvas id="hero-canvas" class="absolute inset-0 w-full h-full gpu-layer"></canvas>
+      <canvas #heroCanvas id="hero-canvas" class="absolute inset-0 w-full h-full gpu-layer opacity-0 transition-opacity duration-1000"></canvas>
 
       <!-- Grid Background -->
       <div class="absolute inset-0 grid-bg opacity-30 pointer-events-none"></div>
@@ -25,7 +25,7 @@ import { ScrollService } from '../../core/services/scroll.service';
              [style.top]="icon.top" 
              [style.left]="icon.left" 
              [style.animation-delay]="icon.delay">
-          <img [src]="icon.url" [alt]="icon.name" class="w-8 h-8 opacity-80 hover:opacity-100 transition-opacity">
+          <img [src]="icon.url" [alt]="icon.name" width="32" height="32" loading="lazy" decoding="async" class="w-8 h-8 opacity-80 hover:opacity-100 transition-opacity">
         </div>
       </div>
 
@@ -94,6 +94,9 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   @ViewChild('heroCta') ctaRef!: ElementRef;
   @ViewChild('heroStats') statsRef!: ElementRef;
 
+  // three.js is loaded on demand (after the page has loaded) to keep it out of the main bundle.
+  private T!: typeof THREE;
+  private destroyed = false;
   private renderer!: THREE.WebGLRenderer;
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
@@ -142,54 +145,71 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     // WebGL loop + listeners run outside Angular: no change detection per frame.
     this.zone.runOutsideAngular(() => {
-      this.initThreeJS();
       this.animateHeroEntrance();
-      this.trackMouse();
-      // Stop rendering when the hero is off-screen so scrolling stays smooth.
-      // The margin restarts it just before it scrolls back in, so no stale frame shows.
-      this.observer = new IntersectionObserver(([entry]) => {
-        const wasVisible = this.visible;
-        this.visible = entry.isIntersecting;
-        if (this.visible && !wasVisible) {
-          this.lastFrame = 0;
-          this.animate();
-        }
-      }, { rootMargin: '300px 0px' });
-      this.observer.observe(this.canvasRef.nativeElement);
+      this.scheduleParticles();
     });
   }
 
-  private initThreeJS(): void {
+  /** Start the particle background once the page has loaded and the browser is idle. */
+  private scheduleParticles(): void {
+    const idle = (cb: () => void) =>
+      'requestIdleCallback' in window
+        ? (window as any).requestIdleCallback(cb, { timeout: 3000 })
+        : setTimeout(cb, 300);
+    const start = () => idle(() => this.initThreeJS());
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
+  }
+
+  private async initThreeJS(): Promise<void> {
+    this.T = await import('three');
+    if (this.destroyed) return;
+    const T = this.T;
     const canvas = this.canvasRef.nativeElement;
+    const mobile = window.innerWidth < 768;
     const width = window.innerWidth;
     const height = window.innerHeight;
 
     // Scene
-    this.scene = new THREE.Scene();
+    this.scene = new T.Scene();
 
     // Camera
-    this.camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+    this.camera = new T.PerspectiveCamera(60, width / height, 0.1, 1000);
     this.camera.position.z = 5;
 
     // Renderer
-    this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 768 ? 1.5 : 2));
+    this.renderer = new T.WebGLRenderer({ canvas, alpha: true, antialias: !mobile, powerPreference: 'high-performance' });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.25 : 2));
     // CSS sizes the canvas; only the drawing buffer is set here.
     this.renderer.setSize(width, height, false);
     this.lastWidth = width;
 
-    // Create particle system
-    this.createParticles();
+    // Create particle system (fewer particles on phones)
+    this.createParticles(mobile ? 900 : 2000);
 
-    // Handle resize
+    // Handle resize + mouse parallax
     window.addEventListener('resize', this.onResizeBound, { passive: true });
+    this.trackMouse();
 
-    // Start animation loop
+    // Stop rendering when the hero is off-screen so scrolling stays smooth.
+    // The margin restarts it just before it scrolls back in, so no stale frame shows.
+    this.observer = new IntersectionObserver(([entry]) => {
+      const wasVisible = this.visible;
+      this.visible = entry.isIntersecting;
+      if (this.visible && !wasVisible) {
+        this.lastFrame = 0;
+        this.animate();
+      }
+    }, { rootMargin: '300px 0px' });
+    this.observer.observe(canvas);
+
+    // Start animation loop, then fade the canvas in
     this.animate();
+    canvas.style.opacity = '1';
   }
 
-  private createParticles(): void {
-    const count = 2000;
+  private createParticles(count: number): void {
+    const T = this.T;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
@@ -213,21 +233,21 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
       sizes[i] = Math.random() * 3 + 0.5;
     }
 
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+    const geometry = new T.BufferGeometry();
+    geometry.setAttribute('position', new T.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new T.BufferAttribute(colors, 3));
+    geometry.setAttribute('size', new T.BufferAttribute(sizes, 1));
 
-    const material = new THREE.PointsMaterial({
+    const material = new T.PointsMaterial({
       size: 0.06,
       vertexColors: true,
       transparent: true,
       opacity: 0.7,
-      blending: THREE.AdditiveBlending,
+      blending: T.AdditiveBlending,
       depthWrite: false,
     });
 
-    this.particles = new THREE.Points(geometry, material);
+    this.particles = new T.Points(geometry, material);
     this.scene.add(this.particles);
 
     // Add connection lines (subset)
@@ -235,7 +255,8 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   }
 
   private addConnectionLines(): void {
-    const lineGeo = new THREE.BufferGeometry();
+    const T = this.T;
+    const lineGeo = new T.BufferGeometry();
     const linePositions: number[] = [];
     const numLines = 60;
 
@@ -249,21 +270,21 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
       linePositions.push(x1, y1, z1, x2, y2, z2);
     }
 
-    lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+    lineGeo.setAttribute('position', new T.Float32BufferAttribute(linePositions, 3));
 
-    const lineMat = new THREE.LineBasicMaterial({
+    const lineMat = new T.LineBasicMaterial({
       color: 0x06b6d4,
       transparent: true,
       opacity: 0.08,
-      blending: THREE.AdditiveBlending,
+      blending: T.AdditiveBlending,
     });
 
-    const lines = new THREE.LineSegments(lineGeo, lineMat);
+    const lines = new T.LineSegments(lineGeo, lineMat);
     this.scene.add(lines);
   }
 
   private animate(): void {
-    if (!this.visible) return;
+    if (!this.visible || !this.renderer) return;
     this.animFrameId = requestAnimationFrame(() => this.animate());
 
     const now = performance.now();
@@ -284,6 +305,7 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   }
 
   private onResize(): void {
+    if (!this.renderer) return;
     const width = window.innerWidth;
     const height = window.innerHeight;
     // On touch devices the address bar showing/hiding while scrolling fires
@@ -297,7 +319,7 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   }
 
   private animateHeroEntrance(): void {
-    const tl = gsap.timeline({ delay: 0.3 });
+    const tl = gsap.timeline({ delay: 0.1 });
 
     tl.to(this.headingRef.nativeElement, {
       opacity: 1, y: 0, duration: 1, ease: 'power3.out',
@@ -315,13 +337,11 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
 
   scrollToSection(e: Event, href: string): void {
     e.preventDefault();
-    const target = document.querySelector(href);
-    if (target) {
-      this.scrollService.scrollTo(target as HTMLElement, { offset: -80, duration: 1.5 });
-    }
+    this.scrollService.goToSection(href);
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
     cancelAnimationFrame(this.animFrameId);
     this.observer?.disconnect();
     window.removeEventListener('mousemove', this.onMouseMove);

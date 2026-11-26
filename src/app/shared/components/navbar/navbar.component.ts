@@ -22,8 +22,9 @@ import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
           <div class="logo-wrap flex items-center gap-3 cursor-pointer" (click)="scrollToTop()">
             <div class="logo-img-wrap relative">
               <img
-                src="assets/logo/codixy-logo-dark.png"
+                src="assets/logo/codixy-logo-dark.webp"
                 alt="CODIXY Technologies"
+                width="720" height="179" fetchpriority="high"
                 class="logo-img h-10 md:h-14 w-auto object-contain"
               >
             </div>
@@ -102,7 +103,7 @@ import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 
       <!-- Mobile Logo -->
       <div class="mb-12">
-        <img src="assets/logo/codixy-logo-dark.png" alt="CODIXY" class="h-12 w-auto mx-auto">
+        <img src="assets/logo/codixy-logo-dark.webp" alt="CODIXY" width="720" height="179" loading="lazy" class="h-12 w-auto mx-auto">
       </div>
 
       <!-- Mobile Nav Items -->

@@ -84,9 +84,14 @@ export class ScrollService {
     else this.router.navigateByUrl('/');
   }
 
-  private scrollToSection(href: string): void {
+  /** Sections below the hero load lazily, so wait (briefly) for the target to exist. */
+  private scrollToSection(href: string, attempt = 0): void {
     const el = document.querySelector(href);
-    if (el) this.scrollTo(el as HTMLElement, { offset: -80, duration: 1.5 });
+    if (el) {
+      this.scrollTo(el as HTMLElement, { offset: -80, duration: 1.5 });
+    } else if (attempt < 40) {
+      setTimeout(() => this.scrollToSection(href, attempt + 1), 100);
+    }
   }
 
   getLenis(): Lenis { return this.lenis; }

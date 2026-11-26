@@ -47,7 +47,7 @@ gsap.registerPlugin(ScrollTrigger);
                   <!-- Image Top -->
                   <div class="relative w-full h-56 md:h-64 overflow-hidden shrink-0 border-b border-white/5 bg-[#0a0f1e]">
                     <div class="absolute inset-0 bg-gradient-to-br from-cyan-900/20 to-purple-900/20 animate-pulse"></div>
-                    <img [src]="project.image" [alt]="project.title"
+                    <img [src]="project.image" [alt]="project.title" width="800" height="400" decoding="async"
                       class="relative z-10 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       loading="lazy" onerror="this.style.display='none'">
                     <div class="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-80 z-20"></div>
@@ -124,7 +124,7 @@ export class PortfolioComponent implements AfterViewInit {
       category: 'Education Management Software',
       description: 'School Management System with Features for Teachers, Students, and Parents.',
       techStack: ['Angular', 'Node.js', 'PostgreSQL'],
-      image: 'assets/icons/school-management.jpg'
+      image: 'assets/icons/school-management.webp'
     },
     {
       title: 'CW Rentals',
