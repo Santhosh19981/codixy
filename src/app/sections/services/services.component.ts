@@ -1,9 +1,16 @@
-import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SafeHtmlPipe } from '../../shared/pipes/safe-html.pipe';
 import { AnimationService } from '../../core/services/animation.service';
+import { ScrollService } from '../../core/services/scroll.service';
+
+interface ServiceDetail {
+  overview: string;
+  toolGroups: { label: string; tools: string[] }[];
+  deliverables: string[];
+}
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -88,16 +95,85 @@ gsap.registerPlugin(ScrollTrigger);
             </div>
 
             <!-- Arrow link -->
-            <div class="flex items-center gap-2 text-cyan-400 text-sm font-medium font-grotesk group-hover:gap-4 transition-all duration-300 relative z-10">
+            <button type="button" (click)="openDetails(service, $event)"
+              class="flex items-center gap-2 text-cyan-400 text-sm font-medium font-grotesk group-hover:gap-4 transition-all duration-300 relative z-10 hover:text-cyan-300"
+              [attr.aria-label]="'Learn more about ' + service.title">
               <span>Learn More</span>
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
               </svg>
-            </div>
+            </button>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- Service details popup -->
+    <div #modal *ngIf="active as s" class="fixed inset-0 z-[10000] flex items-center justify-center p-4 md:p-6"
+      role="dialog" aria-modal="true" [attr.aria-labelledby]="'svc-modal-title'">
+      <!-- Backdrop -->
+      <div class="modal-backdrop absolute inset-0 bg-black/70 backdrop-blur-sm" (click)="closeDetails()"></div>
+
+      <!-- Panel -->
+      <div class="modal-panel relative w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-2xl p-6 md:p-10"
+        data-lenis-prevent
+        [style.background]="'linear-gradient(160deg, ' + s.iconBg + ', rgba(10,15,30,0.98) 45%), #0a0f1e'"
+        [style.border]="'1px solid ' + s.borderColor"
+        [style.box-shadow]="'0 30px 80px rgba(0,0,0,0.6), 0 0 60px ' + s.glowColor">
+
+        <!-- Close -->
+        <button #closeBtn type="button" (click)="closeDetails()" aria-label="Close"
+          class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:rotate-90 transition-all duration-300"
+          style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+
+        <!-- Header -->
+        <div class="flex items-center gap-4 mb-6 pr-12">
+          <div class="w-14 h-14 shrink-0 rounded-xl flex items-center justify-center"
+            [style.background]="'linear-gradient(135deg, ' + s.iconBg + ', transparent)'"
+            [style.border]="'1px solid ' + s.borderColor">
+            <span [innerHTML]="s.icon | safeHtml"></span>
+          </div>
+          <h3 id="svc-modal-title" class="text-2xl md:text-3xl font-bold text-white font-grotesk leading-tight">{{s.title}}</h3>
+        </div>
+
+        <p class="text-slate-300 leading-relaxed font-outfit mb-8">{{details[s.title].overview}}</p>
+
+        <!-- Tools -->
+        <h4 class="text-xs uppercase tracking-widest text-slate-500 font-grotesk mb-4">Tools &amp; Technologies</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+          <div *ngFor="let g of details[s.title].toolGroups" class="rounded-xl p-4"
+            style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+            <div class="text-sm font-semibold font-grotesk mb-3" [style.color]="s.accentColor">{{g.label}}</div>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let t of g.tools" class="px-2 py-1 text-xs font-medium rounded-md font-outfit"
+                style="background: rgba(6,182,212,0.1); color: rgba(103,232,249,0.9); border: 1px solid rgba(6,182,212,0.2);">{{t}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deliverables -->
+        <h4 class="text-xs uppercase tracking-widest text-slate-500 font-grotesk mb-4">What We Deliver</h4>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 mb-8">
+          <li *ngFor="let d of details[s.title].deliverables" class="flex items-start gap-3 text-slate-300 text-sm font-outfit">
+            <svg class="w-5 h-5 shrink-0 mt-px" [style.color]="s.accentColor" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>{{d}}</span>
+          </li>
+        </ul>
+
+        <a href="#contact" (click)="contactFromModal($event)" class="btn-primary inline-flex items-center gap-2">
+          Discuss Your Project
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+          </svg>
+        </a>
+      </div>
+    </div>
   `,
   styles: [`
     :host { display: block; }
@@ -108,9 +184,13 @@ gsap.registerPlugin(ScrollTrigger);
     .service-card {
       background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
     }
+    .modal-backdrop { animation: fadeIn .25s ease-out; }
+    .modal-panel { animation: popIn .3s cubic-bezier(.2,.8,.2,1); overscroll-behavior: contain; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes popIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }
   `]
 })
-export class ServicesComponent implements AfterViewInit {
+export class ServicesComponent implements AfterViewInit, OnDestroy {
   @ViewChild('servicesHeader') headerRef!: ElementRef;
   @ViewChild('servicesGrid') gridRef!: ElementRef;
 
@@ -189,7 +269,107 @@ export class ServicesComponent implements AfterViewInit {
     },
   ];
 
-  constructor(private animService: AnimationService) {}
+  readonly details: Record<string, ServiceDetail> = {
+    'AI & Intelligent Automation': {
+      overview: 'We design and build AI systems that take repetitive work off your team and turn your data into decisions. From chatbots and document processing to predictive models and vision-based inspection, every solution is trained on your context, integrated into your existing tools, and monitored in production.',
+      toolGroups: [
+        { label: 'Machine Learning', tools: ['Python', 'TensorFlow', 'PyTorch', 'scikit-learn', 'XGBoost'] },
+        { label: 'NLP & Generative AI', tools: ['OpenAI', 'Claude', 'LangChain', 'Hugging Face', 'spaCy'] },
+        { label: 'Computer Vision', tools: ['OpenCV', 'YOLO', 'MediaPipe', 'Tesseract OCR'] },
+        { label: 'Data & MLOps', tools: ['Pandas', 'Jupyter', 'MLflow', 'Pinecone', 'Apache Airflow'] },
+      ],
+      deliverables: ['AI chatbots & virtual assistants', 'Document & invoice processing (OCR)', 'Predictive analytics & forecasting', 'Workflow & RPA automation', 'Image and video recognition', 'Recommendation engines'],
+    },
+    'Web Application Development': {
+      overview: 'We build fast, secure and scalable web applications — from marketing sites and customer portals to complex SaaS dashboards. Our stack favours proven, well-supported frameworks, clean architecture and automated testing, so your product is easy to grow and maintain.',
+      toolGroups: [
+        { label: 'Frontend', tools: ['Angular', 'React', 'Next.js', 'TypeScript', 'Tailwind CSS'] },
+        { label: 'Backend', tools: ['Node.js', 'Express', 'NestJS', 'Python / FastAPI', 'GraphQL'] },
+        { label: 'Databases', tools: ['PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'Firebase'] },
+        { label: 'Quality & Tooling', tools: ['Git', 'Jest', 'Cypress', 'Postman', 'Vite'] },
+      ],
+      deliverables: ['Custom web applications & SaaS', 'Admin dashboards & portals', 'E-commerce platforms', 'REST & GraphQL APIs', 'Progressive Web Apps (PWA)', 'Performance & SEO optimisation'],
+    },
+    'Mobile App Development': {
+      overview: 'We create mobile apps that feel native on both iOS and Android. Using cross-platform frameworks we ship one codebase to both stores faster and at lower cost, and go fully native when a feature demands it — always with smooth UI, offline support and secure data handling.',
+      toolGroups: [
+        { label: 'Cross-Platform', tools: ['Flutter', 'React Native', 'Ionic', 'Capacitor'] },
+        { label: 'Native', tools: ['Swift', 'Kotlin', 'Xcode', 'Android Studio'] },
+        { label: 'Backend & Services', tools: ['Firebase', 'Supabase', 'Node.js', 'Push Notifications'] },
+        { label: 'Release & Testing', tools: ['TestFlight', 'Play Console', 'Fastlane', 'Appium'] },
+      ],
+      deliverables: ['iOS & Android apps', 'Cross-platform apps from one codebase', 'Offline-first & real-time features', 'Payments & third-party integrations', 'App Store / Play Store publishing', 'Ongoing updates & support'],
+    },
+    'Enterprise Software Solutions': {
+      overview: 'We build robust business platforms — ERP, CRM, HRMS and custom management systems — that model how your organisation actually works. Designed as modular microservices, they scale with your business, integrate with your existing systems and keep data secure and auditable.',
+      toolGroups: [
+        { label: 'Core Platform', tools: ['Java', 'Spring Boot', 'Spring Cloud', 'Hibernate', '.NET'] },
+        { label: 'Architecture', tools: ['Microservices', 'REST APIs', 'Kafka', 'RabbitMQ'] },
+        { label: 'Data', tools: ['PostgreSQL', 'Oracle', 'SQL Server', 'Elasticsearch'] },
+        { label: 'Security & Access', tools: ['OAuth 2.0', 'JWT', 'Keycloak', 'Role-based access'] },
+      ],
+      deliverables: ['ERP & inventory systems', 'CRM & sales pipelines', 'HR & payroll management', 'Reporting & BI dashboards', 'Legacy system modernisation', 'Third-party & API integrations'],
+    },
+    'UI/UX Design & Branding': {
+      overview: 'Great products start with great design. We research your users, map their journeys and craft interfaces that are beautiful, intuitive and accessible. From brand identity to clickable prototypes and full design systems, we hand developers pixel-perfect, ready-to-build designs.',
+      toolGroups: [
+        { label: 'Design & Prototyping', tools: ['Figma', 'FigJam', 'Adobe XD', 'Framer'] },
+        { label: 'Branding & Graphics', tools: ['Adobe Illustrator', 'Photoshop', 'Canva'] },
+        { label: 'Motion', tools: ['After Effects', 'Lottie', 'GSAP'] },
+        { label: 'Research & Testing', tools: ['Maze', 'Hotjar', 'Google Analytics'] },
+      ],
+      deliverables: ['User research & personas', 'Wireframes & interactive prototypes', 'Web & mobile UI design', 'Design systems & component libraries', 'Logo & brand identity', 'Usability testing & audits'],
+    },
+    'DevOps & Cloud Infrastructure': {
+      overview: 'We set up and run the infrastructure your software depends on. Automated CI/CD pipelines, containerised deployments and infrastructure-as-code mean faster, safer releases, while monitoring and alerting keep your systems healthy, secure and cost-efficient around the clock.',
+      toolGroups: [
+        { label: 'Cloud Platforms', tools: ['AWS', 'Microsoft Azure', 'Google Cloud', 'DigitalOcean'] },
+        { label: 'Containers', tools: ['Docker', 'Kubernetes', 'Helm'] },
+        { label: 'CI/CD & IaC', tools: ['GitHub Actions', 'Jenkins', 'GitLab CI', 'Terraform', 'Ansible'] },
+        { label: 'Monitoring', tools: ['Prometheus', 'Grafana', 'CloudWatch', 'ELK Stack'] },
+      ],
+      deliverables: ['Cloud architecture & migration', 'CI/CD pipeline setup', 'Containerisation & orchestration', 'Infrastructure as Code', 'Monitoring, logging & alerts', 'Security hardening & cost optimisation'],
+    },
+  };
+
+  active: (typeof this.services)[number] | null = null;
+  @ViewChild('closeBtn') closeBtn?: ElementRef<HTMLButtonElement>;
+
+  /** Re-parent the popup to <body> so no ancestor stacking context (transforms, z-index) can put the navbar above it. */
+  @ViewChild('modal') set modalEl(ref: ElementRef<HTMLElement> | undefined) {
+    if (ref && ref.nativeElement.parentElement !== document.body) document.body.appendChild(ref.nativeElement);
+  }
+  private lastFocus: HTMLElement | null = null;
+
+  constructor(private animService: AnimationService, private scroll: ScrollService) {}
+
+  openDetails(service: (typeof this.services)[number], e?: Event): void {
+    e?.stopPropagation();
+    this.lastFocus = document.activeElement as HTMLElement;
+    this.active = service;
+    this.scroll.getLenis()?.stop();
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => this.closeBtn?.nativeElement.focus());
+  }
+
+  @HostListener('document:keydown.escape')
+  closeDetails(): void {
+    if (!this.active) return;
+    this.active = null;
+    this.scroll.getLenis()?.start();
+    document.body.style.overflow = '';
+    this.lastFocus?.focus();
+  }
+
+  contactFromModal(e: Event): void {
+    e.preventDefault();
+    this.closeDetails();
+    this.scroll.goToSection('#contact');
+  }
+
+  ngOnDestroy(): void {
+    if (this.active) this.closeDetails();
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
